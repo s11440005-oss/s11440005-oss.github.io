@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMIÈRE | 精品飯店</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold: #c5a059;
+            --dark: #1a1a1a;
+            --light: #f9f9f9;
+            --white: #ffffff;
+            --transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .brand {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* --- 導覽列 --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links span {
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links span:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--gold);
+            transition: var(--transition);
+        }
+
+        .nav-links span:hover:after, .nav-links span.active:after {
+            width: 100%;
+        }
+
+        /* --- 頁面容器 --- */
+        .page-content {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .section {
+            padding: 4rem 10%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- 動畫 --- */
+        .fade-enter-active, .fade-leave-active {
+            transition: opacity 0.5s ease;
+        }
+        .fade-enter-from, .fade-leave-to {
+            opacity: 0;
+        }
+
+        /* --- 首頁 --- */
+        .hero {
+            height: 80vh;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80') center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+        }
+
+        .hero h1 { font-size: 4rem; margin-bottom: 1rem; }
+        .btn {
+            padding: 1rem 2.5rem;
+            background: var(--gold);
+            color: white;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 2rem;
+        }
+        .btn:hover { background: #b48e46; transform: translateY(-3px); }
+
+        /* --- 房型介紹 (Grid) --- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+
+        .card:hover { transform: translateY(-10px); }
+
+        .card img { width: 100%; height: 250px; object-fit: cover; }
+        .card-body { padding: 1.5rem; }
+        .price { color: var(--gold); font-weight: bold; margin: 1rem 0; }
+
+        /* --- 聯絡我們 --- */
+        .contact-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        form input, form textarea {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            font-family: inherit;
+        }
+
+        /* --- RWD 手機版調整 --- */
+        @media (max-width: 768px) {
+            .nav-links { gap: 1rem; }
+            .nav-links span { font-size: 0.7rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .contact-container { grid-template-columns: 1fr; }
+            .section { padding: 2rem 5%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <nav>
+        <div class="brand" @click="currentPage = 'home'">LUMIÈRE</div>
+        <div class="nav-links">
+            <span :class="{active: currentPage === 'home'}" @click="currentPage = 'home'">首頁</span>
+            <span :class="{active: currentPage === 'rooms'}" @click="currentPage = 'rooms'">房型</span>
+            <span :class="{active: currentPage === 'facilities'}" @click="currentPage = 'facilities'">設施</span>
+            <span :class="{active: currentPage === 'contact'}" @click="currentPage = 'contact'">聯絡</span>
+        </div>
+    </nav>
+
+    <main class="page-content">
+        <transition name="fade" mode="out-in">
+            <div v-if="currentPage === 'home'" key="home">
+                <section class="hero">
+                    <h1>尋找城市中的寧靜奢華</h1>
+                    <p>在 Lumière，我們定義的不只是住宿，而是一種生活美學。</p>
+                    <button class="btn" @click="currentPage = 'rooms'">立即預訂</button>
+                </section>
+                <section class="section" style="text-align: center;">
+                    <h2>優雅與舒適的完美交匯</h2>
+                    <p style="max-width: 600px; margin: 2rem auto;">位於市中心繁華地段，Lumière 飯店提供量身定制的服務，讓每一位旅伴都能在精緻的氛圍中放鬆身心。</p>
+                </section>
+            </div>
+
+            <div v-else-if="currentPage === 'rooms'" key="rooms" class="section">
+                <h2 style="text-align: center;">精選房型</h2>
+                <div class="grid">
+                    <div class="card" v-for="room in rooms" :key="room.title">
+                        <img :src="room.img" :alt="room.title">
+                        <div class="card-body">
+                            <h3>{{ room.title }}</h3>
+                            <p class="price">NT$ {{ room.price }} / 晚起</p>
+                            <p>{{ room.desc }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else-if="currentPage === 'facilities'" key="facilities" class="section">
+                <h2 style="text-align: center; margin-bottom: 3rem;">極致設施</h2>
+                <div class="grid">
+                    <div class="card" v-for="f in facilities" :key="f.title">
+                        <img :src="f.img" :alt="f.title">
+                        <div class="card-body">
+                            <h3>{{ f.title }}</h3>
+                            <p style="margin-top: 1rem;">{{ f.desc }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else-if="currentPage === 'contact'" key="contact" class="section">
+                <div class="contact-container">
+                    <div>
+                        <h2>聯絡我們</h2>
+                        <p style="margin: 2rem 0;">有任何需求或疑問嗎？請填寫表單，我們的禮賓團隊將盡快與您聯繫。</p>
+                        <p><strong>地址：</strong> 台北市信義區微光大道 101 號</p>
+                        <p><strong>電話：</strong> +886 2 2345 6789</p>
+                        <p><strong>Email：</strong> info@lumiere-hotel.com</p>
+                    </div>
+                    <form @submit.prevent="alert('感謝您的訊息！我們將盡快回覆。')">
+                        <input type="text" placeholder="您的姓名" required>
+                        <input type="email" placeholder="電子郵件" required>
+                        <textarea rows="5" placeholder="需求描述" required></textarea>
+                        <button class="btn" style="width: 100%;">送出訊息</button>
+                    </form>
+                </div>
+            </div>
+        </transition>
+    </main>
+
+    <footer style="padding: 3rem; text-align: center; background: #eee; font-size: 0.8rem;">
+        &copy; 2026 LUMIÈRE BOUTIQUE HOTEL. ALL RIGHTS RESERVED.
+    </footer>
+</div>
+
+<script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+        setup() {
+            const currentPage = ref('home');
+
+            const rooms = ref([
+                { title: '標準客房', price: '4,500', desc: '極簡主義設計，溫馨舒適的個人空間。', img: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80' },
+                { title: '豪華海景房', price: '6,800', desc: '落地窗設計，早晨在波光粼粼的海景中醒來。', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80' },
+                // 更新了家庭套房的圖片
+                { title: '家庭套房', price: '9,200', desc: '寬敞的雙房設計，適合全家共度美好時光。', img: 'http://googleusercontent.com/image_collection/image_retrieval/11817358024986484459' },
+                { title: '總統套房', price: '28,000', desc: '頂級奢華配置，專屬管家服務與私人露台。', img: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80' }
+            ]);
+
+            const facilities = ref([
+                { title: '無邊際泳池', desc: '位於頂樓的絕美泳池，俯瞰整座城市的天際線。', img: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=600&q=80' },
+                { title: '米其林餐廳', desc: '由法籍星級主廚坐鎮，提供最頂級的感官盛宴。', img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80' },
+                // 更新了靜謐 SPA 的圖片
+                { title: '靜謐 SPA', desc: '結合古老療法與現代技術，徹底釋放壓力。', img: 'http://googleusercontent.com/image_collection/image_retrieval/2986792343618266984' }
+            ]);
+
+            return { currentPage, rooms, facilities };
+        }
+    }).mount('#app');
+</script>
+
+</body>
+</html>
